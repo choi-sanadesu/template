@@ -1,0 +1,24 @@
+name: autofix.ci
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+concurrency:
+  group: prettier-${{ github.ref }}
+  cancel-in-progress: true
+permissions: {}
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install Prettier
+        run: npm install -g prettier
+      - name: Format
+        run: prettier --write "**/*.{md,json,yml,yaml}"
+      - uses: autofix-ci/action@v1
+        with:
+          commit-message: "Apply Prettier format"

@@ -51,29 +51,6 @@ jobs:
         run: |
           test -f .claude-plugin/plugin.json && echo "OK: plugin.json found" || (echo "ERROR: .claude-plugin/plugin.json not found" && exit 1)
 
-  prettier:
-    name: Prettier
-    if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    runs-on: ubuntu-latest
-    permissions: {}
-    concurrency:
-      group: prettier-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-      - name: Install Prettier
-        run: npm install -g prettier
-      - name: Format
-        run: prettier --write "**/*.{md,json,yml,yaml}"
-      - uses: autofix-ci/action@v1
-        with:
-          commit-message: "Apply Prettier format"
-
   label:
     name: Label
     if: github.event_name == 'pull_request_target'
