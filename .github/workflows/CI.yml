@@ -11,11 +11,23 @@ permissions:
   contents: read
 
 jobs:
+  format-prettier:
+    name: Format check Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install Prettier
+        run: npm install -g prettier
+      - name: Check formatting
+        run: prettier --check "**/*.{md,json,yml,yaml}"
   validate:
     name: Validate plugin
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate JSON files
         run: |
