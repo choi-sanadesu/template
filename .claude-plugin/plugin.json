@@ -1,0 +1,8 @@
+{
+  "name": "[plugin-name]",
+  "description": "[Short description of what this plugin does]",
+  "version": "0.1.0",
+  "author": {
+    "name": "[Your Name]"
+  }
+}
