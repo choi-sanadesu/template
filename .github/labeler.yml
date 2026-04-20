@@ -1,0 +1,13 @@
+plugin:
+  - ".claude-plugin/**"
+  - "skills/**"
+  - "hooks/**"
+  - "commands/**"
+  - "agents/**"
+
+ci:
+  - ".github/**"
+
+documentation:
+  - "*.md"
+  - "docs/**"
