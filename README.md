@@ -35,8 +35,8 @@
 
 ## Secrets required
 
-| Secret | Required for |
-|--------|-------------|
+| Secret                    | Required for                           |
+| ------------------------- | -------------------------------------- |
 | `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml` |
 
 Set these under **Settings → Secrets and variables → Actions**.

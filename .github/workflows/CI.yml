@@ -8,13 +8,26 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   schedule:
-    - cron: '38 6 * * *'
+    - cron: "38 6 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  format-prettier:
+    name: Format check Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install Prettier
+        run: npm install -g prettier
+      - name: Check formatting
+        run: prettier --check "**/*.{md,json,yml,yaml}"
+
   validate:
     name: Validate plugin
     if: |
@@ -51,9 +64,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: |
-          yarn
-          yarn prettier . --write
+        with:
+          node-version: "24"
+      - name: Install Prettier
+        run: npm install -g prettier
+      - name: Format
+        run: prettier --write "**/*.{md,json,yml,yaml}"
       - uses: autofix-ci/action@v1
         with:
           commit-message: "Apply Prettier format"
@@ -81,10 +97,10 @@ jobs:
       - uses: actions/stale@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          stale-issue-message: 'Stale issue message'
-          stale-pr-message: 'Stale pull request message'
-          stale-issue-label: 'no-issue-activity'
-          stale-pr-label: 'no-pr-activity'
+          stale-issue-message: "Stale issue message"
+          stale-pr-message: "Stale pull request message"
+          stale-issue-label: "no-issue-activity"
+          stale-pr-label: "no-pr-activity"
 
   release-please:
     name: Release Please
