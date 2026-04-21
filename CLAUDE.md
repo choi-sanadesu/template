@@ -1,4 +1,4 @@
-# [plugin-name]
+# template
 
 Claude Code plugin template repository.
 
@@ -30,7 +30,7 @@ commands/                    # (optional) Slash command definitions
 1. Create `skills/<skill-name>/SKILL.md`
 2. Add frontmatter — `description:` is required
    (Claude uses it to decide when to invoke)
-3. Invoke via `/[plugin-name]:<skill-name>`
+3. Invoke via `/template:<skill-name>`
 
 ## Secrets required
 
