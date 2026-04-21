@@ -1,15 +1,15 @@
-# [plugin-name]
+# template
 
 > Claude Code plugin template
 
 ## Overview
 
-[Describe what this plugin does and who it's for.]
+A starter Claude Code plugin repository — use it as the base for your own skills, slash commands, and hooks.
 
 ## Getting started
 
 1. Click **Use this template** to create a new repository.
-2. Replace every `[plugin-name]` placeholder with your plugin's name.
+2. Replace `template` throughout `.claude-plugin/plugin.json`, `README.md`, and `CLAUDE.md` with your plugin's name.
 3. Fill in `.claude-plugin/plugin.json` with your plugin details.
 4. Validate the plugin with `claude plugin validate`.
 

@@ -1,4 +1,4 @@
-# [plugin-name]
+# template
 
 Claude Code plugin template repository.
 
@@ -10,16 +10,10 @@ Validate plugin:
 claude plugin validate
 ```
 
-Lint Markdown:
+Validate YAML:
 
 ```bash
-npx markdownlint-cli "**/*.md" --ignore node_modules
-```
-
-Lint YAML:
-
-```bash
-yamllint -d relaxed .
+python3 -c "import glob, yaml; [list(yaml.safe_load_all(open(f))) for f in glob.glob('**/*.y*ml', recursive=True, include_hidden=True) if '/.git/' not in f and '/node_modules/' not in f]"
 ```
 
 ## Structure
@@ -36,7 +30,7 @@ commands/                    # (optional) Slash command definitions
 1. Create `skills/<skill-name>/SKILL.md`
 2. Add frontmatter — `description:` is required
    (Claude uses it to decide when to invoke)
-3. Invoke via `/[plugin-name]:<skill-name>`
+3. Invoke via `/template:<skill-name>`
 
 ## Secrets required
 
@@ -47,7 +41,6 @@ commands/                    # (optional) Slash command definitions
 
 ## CI checks (`CI.yml`)
 
-- **markdownlint**: `**/*.md`
 - **JSON validity**: all `.json` files must parse
-- **yamllint** (relaxed): all YAML files
+- **YAML validity**: all YAML files must parse
 - **Manifest**: `.claude-plugin/plugin.json` must exist
