@@ -10,6 +10,10 @@ on:
   schedule:
     - cron: "38 6 * * *"
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'v1.2.3'
+        required: true
 
 permissions:
   contents: read
@@ -92,16 +96,16 @@ jobs:
           stale-issue-label: "no-issue-activity"
           stale-pr-label: "no-pr-activity"
 
-  release-please:
-    name: Release Please
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  tag:
+    name: Tag
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
     steps:
-      - uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
-          release-type: simple
+      - uses: actions/checkout@v4
+      - env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          git tag "$VERSION"
+          git push origin "$VERSION"
