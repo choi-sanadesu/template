@@ -1,13 +1,19 @@
 plugin:
-  - ".claude-plugin/**"
-  - "skills/**"
-  - "hooks/**"
-  - "commands/**"
-  - "agents/**"
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".claude-plugin/**"
+          - "skills/**"
+          - "hooks/**"
+          - "commands/**"
+          - "agents/**"
 
 ci:
-  - ".github/**"
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
 
 documentation:
-  - "*.md"
-  - "docs/**"
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.md"
+          - "docs/**"

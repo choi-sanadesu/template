@@ -7,12 +7,10 @@ on:
     branches: ["main"]
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
-  schedule:
-    - cron: "38 6 * * *"
   workflow_dispatch:
     inputs:
       version:
-        description: 'v1.2.3'
+        description: "Release version (e.g. v1.2.3)"
         required: true
 
 permissions:
@@ -21,10 +19,7 @@ permissions:
 jobs:
   validate:
     name: Validate
-    if: |
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' ||
-      github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     concurrency:
       group: validate-${{ github.ref }}
@@ -36,37 +31,26 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-
       - name: Lint Markdown
-        run: markdownlint "**/*.md" --ignore node_modules || true
+        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules
 
       - name: Validate JSON
         run: |
-          find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*" | while read f; do
-            echo "Checking $f"
-            python3 -m json.tool "$f" > /dev/null
-          done
+          python3 -c "
+          import glob, json
+          for f in glob.glob('**/*.json', recursive=True):
+              if '/node_modules/' in f or '/.git/' in f: continue
+              json.load(open(f))
+              print('OK', f)
+          "
 
       - name: Validate YAML
         run: |
           pip install yamllint --quiet
-          yamllint -d relaxed . || true
+          yamllint -d relaxed .
 
       - name: Check plugin manifest exists
-        run: |
-          test -f .claude-plugin/plugin.json && echo "OK: plugin.json found" || (echo "ERROR: .claude-plugin/plugin.json not found" && exit 1)
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Test placeholder
-        run: echo "No tests defined yet. Add test steps when Python is introduced."
+        run: test -f .claude-plugin/plugin.json
 
   label:
     name: Label
@@ -76,31 +60,18 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/labeler@v4
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-
-  stale:
-    name: Stale
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-    steps:
-      - uses: actions/stale@v5
+      - uses: actions/labeler@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          stale-issue-message: "Stale issue message"
-          stale-pr-message: "Stale pull request message"
-          stale-issue-label: "no-issue-activity"
-          stale-pr-label: "no-pr-activity"
 
   tag:
     name: Tag
     if: github.event_name == 'workflow_dispatch'
-    needs: [validate, test]
+    needs: [validate]
     runs-on: ubuntu-latest
+    concurrency:
+      group: tag-${{ github.event.inputs.version }}
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
@@ -112,31 +83,28 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          SEMVER="${VERSION#v}"
-          python3 - "$SEMVER" <<'EOF'
-          import json, sys
-          path = ".claude-plugin/plugin.json"
-          with open(path) as f:
-              data = json.load(f)
-          data["version"] = sys.argv[1]
-          with open(path, "w") as f:
+          python3 -c "
+          import json, os
+          path = '.claude-plugin/plugin.json'
+          data = json.load(open(path))
+          data['version'] = os.environ['VERSION'].lstrip('v')
+          with open(path, 'w') as f:
               json.dump(data, f, indent=2)
-              f.write("\n")
-          EOF
+              f.write('\n')
+          "
 
       - name: Update CHANGELOG.md
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          DATE=$(date -u +%Y-%m-%d)
-          HEADER="## ${VERSION} (${DATE})"
+          HEADER="## ${VERSION} ($(date -u +%Y-%m-%d))"
           if [ -f CHANGELOG.md ]; then
             printf '%s\n\n%s\n' "$HEADER" "$(cat CHANGELOG.md)" > CHANGELOG.md
           else
             printf '# Changelog\n\n%s\n' "$HEADER" > CHANGELOG.md
           fi
 
-      - name: Commit
+      - name: Commit and tag
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
@@ -144,10 +112,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json CHANGELOG.md
           git commit -m "chore: release ${VERSION}"
-
-      - name: Tag and push
-        env:
-          VERSION: ${{ github.event.inputs.version }}
-        run: |
           git tag "$VERSION"
           git push origin HEAD "$VERSION"
