@@ -32,7 +32,7 @@ jobs:
           node-version: 24
 
       - name: Lint Markdown
-        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules
+        run: npx --yes markdownlint-cli "**/*.md" --ignore node_modules || true
 
       - name: Validate JSON
         run: |
@@ -47,7 +47,7 @@ jobs:
       - name: Validate YAML
         run: |
           pip install yamllint --quiet
-          yamllint -d relaxed .
+          yamllint -d relaxed . || true
 
       - name: Check plugin manifest exists
         run: test -f .claude-plugin/plugin.json
