@@ -47,6 +47,7 @@ jobs:
 
       - name: Validate YAML
         run: |
+          pip install pyyaml --quiet
           python3 -c "
           import glob, yaml
           for f in glob.glob('**/*.y*ml', recursive=True, include_hidden=True):
