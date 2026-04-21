@@ -10,21 +10,21 @@ Validate plugin:
 claude plugin validate
 ```
 
-Check formatting (matches CI):
+Lint Markdown:
 
 ```bash
-npx prettier --check "**/*.{md,json,yml,yaml}"
+npx markdownlint-cli "**/*.md" --ignore node_modules
 ```
 
-Fix formatting:
+Lint YAML:
 
 ```bash
-npx prettier --write "**/*.{md,json,yml,yaml}"
+yamllint -d relaxed .
 ```
 
 ## Structure
 
-```
+```text
 .claude-plugin/plugin.json   # Plugin manifest (name, version, description, author)
 skills/<name>/SKILL.md       # Skill definition — one folder per skill
 hooks/                       # (optional) Hook definitions
@@ -34,18 +34,20 @@ commands/                    # (optional) Slash command definitions
 ## Adding a skill
 
 1. Create `skills/<skill-name>/SKILL.md`
-2. Add frontmatter — `description:` is required (Claude uses it to decide when to invoke)
+2. Add frontmatter — `description:` is required
+   (Claude uses it to decide when to invoke)
 3. Invoke via `/[plugin-name]:<skill-name>`
 
 ## Secrets required
 
-| Secret                    | Used by                                          |
-| ------------------------- | ------------------------------------------------ |
-| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml`           |
-| `MY_RELEASE_PLEASE_TOKEN` | `release-please.yml` (PAT — repo/issue/PR write) |
+| Secret                    | Used by                                       |
+| ------------------------- | --------------------------------------------- |
+| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml`        |
+| `MY_RELEASE_PLEASE_TOKEN` | `CI.yml` `tag` job (PAT — contents:write)     |
 
-## CI checks
+## CI checks (`CI.yml`)
 
-- **Prettier**: `**/*.{md,json,yml,yaml}` — install globally or use `npx prettier` locally
-- **JSON validity**: all `.json` files must parse cleanly
+- **markdownlint**: `**/*.md`
+- **JSON validity**: all `.json` files must parse
+- **yamllint** (relaxed): all YAML files
 - **Manifest**: `.claude-plugin/plugin.json` must exist

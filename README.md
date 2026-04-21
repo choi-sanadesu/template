@@ -15,22 +15,23 @@
 
 ## Repository structure
 
-```
+```text
 .
 ├── .claude-plugin/
 │   └── plugin.json        # Plugin manifest (name, version, description)
 └── .github/
     └── workflows/
-        ├── CI.yml                 # Validates JSON + checks manifest
+        ├── CI.yml                 # Lint + validate + manual tag/release
         ├── claude.yml             # Runs Claude on @claude mentions
         └── claude-code-review.yml # Auto code review on PRs
 ```
 
 ## Secrets required
 
-| Secret                    | Required for                           |
-| ------------------------- | -------------------------------------- |
-| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml` |
+| Secret                    | Required for                              |
+| ------------------------- | ----------------------------------------- |
+| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml`    |
+| `MY_RELEASE_PLEASE_TOKEN` | `CI.yml` `tag` job (PAT — contents:write) |
 
 Set these under **Settings → Secrets and variables → Actions**.
 
